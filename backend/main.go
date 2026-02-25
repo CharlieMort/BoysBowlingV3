@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"strconv"
 	"strings"
 )
 
@@ -13,27 +12,19 @@ func CheckNilError(err error, msg string) {
 	}
 }
 
-func CalculateScore(scoreCard string) int {
-	// -- | -- | 9/ | -/ | 72 | -1 | -- | 8- | 7- | 72  = 61
-	scoreCard = strings.TrimPrefix(scoreCard, " ")
-	scoreCheck, err := strconv.ParseInt(strings.Split(scoreCard, "= ")[1], 10, 16)
-	CheckNilError(err, "error parseing score")
-	scoreCard = strings.TrimRight(scoreCard, "  = "+strings.Split(scoreCard, "= ")[1])
-	frames := strings.Split(scoreCard, " | ")
-	framesNums := make([]int, 0)
-	modifier := 1
-	for i, frame := range frames {
-		if frame == "X" {
-			if len(framesNums) > 0 {
-				fr
-			}
-		}
-		frameInt1, err := strconv.ParseInt(string(frame[0]), 10, 8)
-		CheckNilError(err, "Failed parsing frame1")
-		frameInt2, err := strconv.ParseInt(string(frame[1]), 10, 8)
-		CheckNilError(err, "Failed parsing frame2")
+// func CalculateScore(scoreCard string) int {
+// 	// -- | -- | 9/ | -/ | 72 | -1 | -- | 8- | 7- | 72  = 61
+// 	scoreCard = strings.TrimPrefix(scoreCard, " ")
+// 	scoreCheck, err := strconv.ParseInt(strings.Split(scoreCard, "= ")[1], 10, 16)
+// 	CheckNilError(err, "error parseing score")
+// 	scoreCard = strings.TrimRight(scoreCard, "  = "+strings.Split(scoreCard, "= ")[1])
+// }
 
-	}
+func AddScoreCard(scoreCard string, playerId int, gameId int) {
+	scoreString := strings.TrimPrefix(scoreCard, " ")
+	scoreTotal := strings.Split(scoreCard, "= ")[1]
+	scoreString = strings.TrimSuffix(scoreString, "  = "+scoreTotal)
+
 }
 
 func main() {

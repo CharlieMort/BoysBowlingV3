@@ -47,3 +47,18 @@ func SetupDatabase() {
 	`
 	db.Exec(framesQuery)
 }
+
+func InsertFrame(playerId int, gameId int, total int, scorecard string, imgPath string) (int64, error) {
+	query := `
+		INSERT INTO frames (
+			playerId,
+			gameId,
+			total,
+			scorecard,
+			imgPath
+		) VALUES ( ?, ?, ?, ?, ?);
+	`
+	res, err := db.Exec(query, playerId, gameId, total, scorecard, imgPath)
+	CheckNilError(err, "failed inserting frame")
+	return res.LastInsertId()
+}
