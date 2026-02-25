@@ -2,7 +2,9 @@ package main
 
 import (
 	"cmp"
+	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"slices"
 	"strconv"
@@ -51,6 +53,11 @@ func GetAllFrames() []Frame {
 
 func BestScore() []PodiumElement {
 	frames := GetAllFrames()
+	if len(frames) < 3 {
+		fmt.Println("bad cache")
+		LastModifiedFrames = time.Now()
+		return []PodiumElement{}
+	}
 	scores := make(map[int]int)
 	for _, frames := range frames {
 		scores[frames.PlayerId] += frames.Total
@@ -60,7 +67,7 @@ func BestScore() []PodiumElement {
 	for player := range scores {
 		scoreArr = append(scoreArr, PodiumElement{
 			Id:    player,
-			Name:  "tmp",
+			Name:  GetNameFromId(player),
 			Score: scores[player],
 		})
 	}
@@ -95,6 +102,37 @@ func Stats(c *gin.Context) {
 	c.JSON(200, stats)
 }
 
+type FrameSimple struct {
+	Name      string `json:"name"`
+	Scorecard string `json:"scorecard"`
+}
+
+type AddGameBody struct {
+	DatePlayed string        `json:"datePlayed"`
+	Frames     []FrameSimple `json:"frames"`
+}
+
+type Reponse struct {
+	Msg string `json:"msg"`
+}
+
+func AddGame(c *gin.Context) {
+	dat, err := io.ReadAll(c.Request.Body)
+	CheckNilError(err, "erroring reading add game request body")
+	var body AddGameBody
+	json.Unmarshal(dat, &body)
+
+	gameId, err := InsertGame("Untitled Game", body.DatePlayed)
+	CheckNilError(err, "error inserting game")
+
+	for _, frame := range body.Frames {
+		playerId := GetUserIdFromName(frame.Name)
+		AddScoreCard(frame.Scorecard, playerId, int(gameId))
+	}
+
+	c.JSON(200, Reponse{Msg: "Accepted"})
+}
+
 var LastModifiedFrames time.Time
 var LastFetchedFrames time.Time
 var framesCache []Frame
@@ -112,24 +150,16 @@ type PodiumElement struct {
 func main() {
 	fmt.Println("Hello Bowlers")
 	LastModifiedFrames = time.Now()
-	LastFetchedFrames = time.Now()
 	LastModifiedStats = time.Now()
-	LastFetchedStats = time.Now()
 
 	SetupDatabase()
 	defer db.Close()
-	AddScoreCard(" -- | -- | 9/ | -/ | 72 | -1 | -- | 8- | 7- | 72  = 61", 0, 0)
-	AddScoreCard(" -- | -- | 9/ | -/ | 72 | -1 | -- | 8- | 7- | 72  = 31", 1, 0)
-	AddScoreCard(" -- | -- | 9/ | -/ | 72 | -1 | -- | 8- | 7- | 72  = 111", 2, 0)
-	for _, frame := range GetAllFrames() {
-		fmt.Println(frame.Scorecard)
-		fmt.Println(frame.Total)
-	}
 
 	r := gin.Default()
 	r.Use(cors.Default())
 
 	r.GET("/stats", Stats)
+	r.POST("/game", AddGame)
 
 	r.Run(":8888")
 	fmt.Println(BestScore())

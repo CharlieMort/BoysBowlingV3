@@ -31,7 +31,7 @@ func SetupDatabase() {
 	userQuery := `
 		CREATE TABLE IF NOT EXISTS players (
 			id INTEGER PRIMARY KEY,
-			name TEXT
+			name TEXT UNIQUE
 		);
 	`
 	db.Exec(userQuery)
@@ -56,6 +56,10 @@ func SetupDatabase() {
 		);
 	`
 	db.Exec(framesQuery)
+	// InsertUser("Charlie")
+	// InsertUser("John")
+	// InsertUser("Arthur")
+	// InsertUser("Ani")
 }
 
 func InsertFrame(playerId int, gameId int, total int, scorecard string, imgPath string) (int64, error) {
@@ -74,6 +78,29 @@ func InsertFrame(playerId int, gameId int, total int, scorecard string, imgPath 
 	return res.LastInsertId()
 }
 
+func InsertUser(name string) (int64, error) {
+	query := `
+		INSERT INTO players (
+			name
+		) VALUES ( ? );
+	`
+	res, err := db.Exec(query, name)
+	CheckNilError(err, "failed inserting user")
+	return res.LastInsertId()
+}
+
+func InsertGame(name string, date string) (int64, error) {
+	query := `
+		INSERT INTO games (
+			name,
+			date
+		) VALUES ( ?, ? );
+	`
+	res, err := db.Exec(query, name, date)
+	CheckNilError(err, "failed inserting game")
+	return res.LastInsertId()
+}
+
 func GetFrames() []Frame {
 	rows, err := db.Query("SELECT * FROM frames;")
 	CheckNilError(err, "failed getting frames")
@@ -85,4 +112,20 @@ func GetFrames() []Frame {
 	}
 	LastFetchedFrames = time.Now()
 	return frames
+}
+
+func GetUserIdFromName(name string) int {
+	query := `SELECT id FROM players WHERE name = ?;`
+	row := db.QueryRow(query, name)
+	var id int
+	row.Scan(&id)
+	return id
+}
+
+func GetNameFromId(id int) string {
+	query := `SELECT name FROM players WHERE id = ?;`
+	row := db.QueryRow(query, id)
+	var name string
+	row.Scan(&name)
+	return name
 }
