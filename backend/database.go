@@ -19,31 +19,31 @@ func SetupDatabase() {
 	CheckNilError(err, "Error opening DB file")
 
 	userQuery := `
-		CREATE TABLE IF NOT EXISTS players {
+		CREATE TABLE IF NOT EXISTS players (
 			id INTEGER PRIMARY KEY,
 			name TEXT
-		};
+		);
 	`
 	db.Exec(userQuery)
 
 	gamesQuery := `
-		CREATE TABLE IF NOT EXISTS games {
+		CREATE TABLE IF NOT EXISTS games (
 			id INTEGER PRIMARY KEY,
 			name TEXT,
 			date TEXT
-		}
+		);
 	`
 	db.Exec(gamesQuery)
 
 	framesQuery := `
-		CREATE TABLE IF NOT EXISTS frames {
+		CREATE TABLE IF NOT EXISTS frames (
 			id INTEGER PRIMARY KEY,
 			playerId INTEGER,
 			gameId INTEGER,
 			total INTEGER,
 			scorecard TEXT,
 			imgPath TEXT
-		};
+		);
 	`
 	db.Exec(framesQuery)
 }
