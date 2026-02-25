@@ -46,7 +46,7 @@ function CreateRankingElement(scores, title) {
     return rankElement
 }
 
-fetch("http://localhost:8888/stats")
+fetch("http://192.168.0.212:8888/stats")
     .then(resp => {
         resp.json()
             .then(jason => {
