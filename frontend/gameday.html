@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Boys Bowling</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="title">
+        <div class="bowlingBall">
+            <div class="hole1"></div>
+            <div class="hole2"></div>
+            <div class="hole3"></div>
+        </div>
+        <div class="titleText">
+            <h1>The</h1>
+            <h1>Boys</h1>
+            <h1>Bowling</h1>
+        </div>
+    </div>
+    <div class="gameday">
+        <h1>Add New Game</h1>
+        <form>
+            <h3>Date Played</h3>
+            <input id="datePlayed" type="date" />
+            <table>
+                <tbody id="frameTable">
+                    <tr>
+                        <th>Player Name</th>
+                        <th>Score String</th>
+                        <th>Delete</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="text" />
+                        </td>
+                        <td>
+                            <input type="text" />
+                        </td>
+                        <td>
+                            <button id="removeRow" onclick="ReniveRow">X</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+        <button id="addRowButton">Add Row</button>
+    </div>
+    <script src="gamedayScript.js" />
+</body>
+</html>

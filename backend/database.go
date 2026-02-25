@@ -3,11 +3,21 @@ package main
 import (
 	"database/sql"
 	"os"
+	"time"
 
 	_ "modernc.org/sqlite"
 )
 
 var db *sql.DB
+
+type Frame struct {
+	Id        int    `json:"id"`
+	PlayerId  int    `json:"playerId"`
+	GameId    int    `json:"gameId"`
+	Total     int    `json:"total"`
+	Scorecard string `json:"scorecard"`
+	ImgPath   string `json:"imgPath"`
+}
 
 func SetupDatabase() {
 	var err error
@@ -60,5 +70,19 @@ func InsertFrame(playerId int, gameId int, total int, scorecard string, imgPath 
 	`
 	res, err := db.Exec(query, playerId, gameId, total, scorecard, imgPath)
 	CheckNilError(err, "failed inserting frame")
+	LastModifiedFrames = time.Now()
 	return res.LastInsertId()
+}
+
+func GetFrames() []Frame {
+	rows, err := db.Query("SELECT * FROM frames;")
+	CheckNilError(err, "failed getting frames")
+	var frames []Frame
+	for rows.Next() {
+		var frame Frame
+		rows.Scan(&frame.Id, &frame.PlayerId, &frame.GameId, &frame.Total, &frame.Scorecard, &frame.ImgPath)
+		frames = append(frames, frame)
+	}
+	LastFetchedFrames = time.Now()
+	return frames
 }

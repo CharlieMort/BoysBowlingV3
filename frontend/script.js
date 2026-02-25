@@ -40,17 +40,16 @@ function CreateRankingElement(scores, title) {
     return rankElement
 }
 
-rankings.appendChild(CreateRankingElement([
-    {
-        name:"charlie",
-        score: 123
-    },
-    {
-        name:"joghn",
-        score: 156
-    },
-    {
-        name:"hasdhasd",
-        score:11
-    }
-], "TESTING"))
+fetch("http://localhost:8888/stats")
+    .then(resp => {
+        resp.json()
+            .then(jason => {
+                console.log(jason)
+                jason.map((stat) => {
+                    rankings.appendChild(CreateRankingElement(stat.podium, stat.title))
+                })
+            })
+    })
+    .catch(err => {
+        console.log(err)
+    })
