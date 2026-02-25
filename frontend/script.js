@@ -5,11 +5,17 @@ function CreateRankingElement(scores, title) {
     rankElement.className = "rankings"
     let podiumElement = document.createElement("div")
     podiumElement.className = "podiums"
+
+    let sortScores = []
+    sortScores[0] = scores[1]
+    sortScores[1] = scores[0]
+    sortScores[2] = scores[2]
+
     for (let i = 0; i<3; i++) {
         let podWrapper = document.createElement("div")
         podWrapper.className = "podiumParent"
         let podName = document.createElement("p")
-        podName.innerText = scores[i].name
+        podName.innerText = sortScores[i].name
         let pod = document.createElement("div")
         pod.classList.add("podium")
         switch(i) {
@@ -24,7 +30,7 @@ function CreateRankingElement(scores, title) {
                 break;
         }
         let scoreEle = document.createElement("p")
-        scoreEle.innerText = scores[i].score
+        scoreEle.innerText = sortScores[i].score
         pod.appendChild(scoreEle)
         podWrapper.appendChild(podName)
         podWrapper.appendChild(pod)

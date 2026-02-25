@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 )
 
@@ -51,13 +52,50 @@ func GetAllFrames() []Frame {
 	return framesCache
 }
 
+func GetPodiumFromCalc(scores map[int]int) []PodiumElement {
+	scoreArr := make([]PodiumElement, 0)
+	for player := range scores {
+		scoreArr = append(scoreArr, PodiumElement{
+			Id:    player,
+			Name:  GetNameFromId(player),
+			Score: scores[player],
+		})
+	}
+
+	slices.SortFunc(scoreArr, func(a, b PodiumElement) int {
+		return cmp.Compare(b.Score, a.Score)
+	})
+
+	return scoreArr[:3]
+}
+
 func BestScore() []PodiumElement {
 	frames := GetAllFrames()
-	if len(frames) < 3 {
-		fmt.Println("bad cache")
-		LastModifiedFrames = time.Now()
-		return []PodiumElement{}
+	scores := make(map[int]int)
+	for _, frames := range frames {
+		scores[frames.PlayerId] += frames.Total
 	}
+
+	return GetPodiumFromCalc(scores)
+}
+
+func HighScore() []PodiumElement {
+	scores := DoQueryGetFrames(`SELECT * FROM frames ORDER BY total DESC LIMIT 3;`)
+	out := make([]PodiumElement, 0)
+	for _, frame := range scores {
+		fmt.Println(frame.Scorecard)
+		out = append(out, PodiumElement{
+			Id:    frame.PlayerId,
+			Name:  GetNameFromId(frame.PlayerId),
+			Score: frame.Total,
+		})
+	}
+	return out
+}
+
+func BestLeagueScore() []PodiumElement {
+	frames := DoQueryGetFrames("SELECT frames.id, frames.playerId, frames.gameId, frames.total, frames.scorecard, frames.imgPath FROM frames JOIN games ON games.id = frames.gameId WHERE games.league = 1;")
+
 	scores := make(map[int]int)
 	for _, frames := range frames {
 		scores[frames.PlayerId] += frames.Total
@@ -79,6 +117,36 @@ func BestScore() []PodiumElement {
 	return scoreArr[:3]
 }
 
+func MostGutters() []PodiumElement {
+	frames := GetAllFrames()
+	scores := make(map[int]int)
+	for _, frames := range frames {
+		scores[frames.PlayerId] += strings.Count(frames.Scorecard, "-")
+	}
+
+	return GetPodiumFromCalc(scores)
+}
+
+func MostStrikes() []PodiumElement {
+	frames := GetAllFrames()
+	scores := make(map[int]int)
+	for _, frames := range frames {
+		scores[frames.PlayerId] += strings.Count(frames.Scorecard, "X")
+	}
+
+	return GetPodiumFromCalc(scores)
+}
+
+func MostSpares() []PodiumElement {
+	frames := GetAllFrames()
+	scores := make(map[int]int)
+	for _, frames := range frames {
+		scores[frames.PlayerId] += strings.Count(frames.Scorecard, "/")
+	}
+
+	return GetPodiumFromCalc(scores)
+}
+
 type StatList struct {
 	Title  string          `json:"title"`
 	Podium []PodiumElement `json:"podium"`
@@ -93,8 +161,28 @@ func Stats(c *gin.Context) {
 	}
 	var stats []StatList
 	stats = append(stats, StatList{
-		Title:  "Best Score",
+		Title:  "Total Score",
 		Podium: BestScore(),
+	})
+	stats = append(stats, StatList{
+		Title:  "Highest Score",
+		Podium: HighScore(),
+	})
+	stats = append(stats, StatList{
+		Title:  "Total Leauge Score",
+		Podium: BestLeagueScore(),
+	})
+	stats = append(stats, StatList{
+		Title:  "Most Gutters",
+		Podium: MostGutters(),
+	})
+	stats = append(stats, StatList{
+		Title:  "Most Strikes",
+		Podium: MostStrikes(),
+	})
+	stats = append(stats, StatList{
+		Title:  "Most Spares",
+		Podium: MostSpares(),
 	})
 
 	LastFetchedStats = time.Now()
@@ -157,6 +245,8 @@ func main() {
 
 	r := gin.Default()
 	r.Use(cors.Default())
+
+	r.Use(static.Serve("/", static.LocalFile("../frontend", true)))
 
 	r.GET("/stats", Stats)
 	r.POST("/game", AddGame)

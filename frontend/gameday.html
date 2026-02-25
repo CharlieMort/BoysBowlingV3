@@ -21,9 +21,14 @@
     </div>
     <div class="gameday">
         <h1>Add New Game</h1>
-        <form>
-            <h3>Date Played</h3>
-            <input id="datePlayed" type="date" />
+        <form id="addGameForm">
+            <div class="formTop">
+                <div>
+                    <h3>Date Played</h3>
+                    <input id="datePlayed" type="date" name="datePlayed" />
+                </div>
+                <button>Submit</button>                
+            </div>
             <table>
                 <tbody id="frameTable">
                     <tr>
@@ -33,10 +38,10 @@
                     </tr>
                     <tr>
                         <td>
-                            <input type="text" />
+                            <input type="text" style="width: 5rem;" name="playerName" />
                         </td>
                         <td>
-                            <input type="text" />
+                            <input type="text" style="width: 15rem;" name="scorecard"/>
                         </td>
                         <td>
                             <button id="removeRow" onclick="ReniveRow">X</button>

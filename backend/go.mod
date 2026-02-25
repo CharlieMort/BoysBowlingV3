@@ -4,6 +4,7 @@ go 1.25.4
 
 require (
 	github.com/gin-contrib/cors v1.7.6
+	github.com/gin-gonic/contrib v0.0.0-20260101091603-d12f07a9136b
 	github.com/gin-gonic/gin v1.11.0
 	modernc.org/sqlite v1.46.1
 )

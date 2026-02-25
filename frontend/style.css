@@ -155,4 +155,21 @@ body {
 
 .gameday {
   color: white;
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+}
+
+.gameday form h3 {
+  margin: 0;
+}
+
+.formTop {
+  display: flex;
+  justify-content: space-between;
+}
+
+.formTop button {
+  height: fit-content;
 }

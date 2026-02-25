@@ -40,7 +40,8 @@ func SetupDatabase() {
 		CREATE TABLE IF NOT EXISTS games (
 			id INTEGER PRIMARY KEY,
 			name TEXT,
-			date TEXT
+			date TEXT,
+			leauge INT DEFAULT 1
 		);
 	`
 	db.Exec(gamesQuery)
@@ -76,6 +77,19 @@ func InsertFrame(playerId int, gameId int, total int, scorecard string, imgPath 
 	CheckNilError(err, "failed inserting frame")
 	LastModifiedFrames = time.Now()
 	return res.LastInsertId()
+}
+
+func DoQueryGetFrames(query string) []Frame {
+	rows, err := db.Query(query)
+	CheckNilError(err, "failed getting rows")
+	var frumes []Frame
+	for rows.Next() {
+		var f Frame
+		rows.Scan(&f.Id, &f.PlayerId, &f.GameId, &f.Total, &f.Scorecard, &f.ImgPath)
+		frumes = append(frumes, f)
+	}
+
+	return frumes
 }
 
 func InsertUser(name string) (int64, error) {
