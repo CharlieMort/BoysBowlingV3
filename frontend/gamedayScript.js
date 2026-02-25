@@ -60,7 +60,7 @@ form.addEventListener("submit", (e) => {
         frames: frames
     }
 
-    fetch("http://192.168.0.212:8888/game", {
+    fetch("https://bowling.charliemort.com/game", {
         method: "POST",
         body: JSON.stringify(body)
     }).then((resp) => {

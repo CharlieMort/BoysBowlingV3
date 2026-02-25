@@ -1,10 +1,10 @@
-FROM golang:1.19
+FROM golang:latest
 
 # Set destination for COPY
 WORKDIR /app
 
 # Download Go modules
-COPY backend/go.mod backend/go.sum ./
+COPY backend/go.mod backend/go.sum backend/bowling.db ./
 RUN go mod download
 
 # Copy the source code. Note the slash at the end, as explained in
