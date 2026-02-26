@@ -80,8 +80,7 @@ func InsertFrame(playerId int, gameId int, total int, scorecard string, imgPath 
 }
 
 func DoQueryGetFrames(query string) []Frame {
-	rows, err := db.Query(query)
-	CheckNilError(err, "failed getting rows")
+	rows := DoQuery(query)
 	var frumes []Frame
 	for rows.Next() {
 		var f Frame
@@ -90,6 +89,12 @@ func DoQueryGetFrames(query string) []Frame {
 	}
 
 	return frumes
+}
+
+func DoQuery(query string) *sql.Rows {
+	rows, err := db.Query(query)
+	CheckNilError(err, "failed getting rows")
+	return rows
 }
 
 func InsertUser(name string) (int64, error) {

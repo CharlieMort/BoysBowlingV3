@@ -221,6 +221,28 @@ func AddGame(c *gin.Context) {
 	c.JSON(200, Reponse{Msg: "Accepted"})
 }
 
+func GetAllFramesByGame(c *gin.Context) {
+	type FrameGame struct {
+		*Frame
+		Date string `json:"date"`
+	}
+
+	rows := DoQuery(`
+		SELECT frames.id, frames.playerId, frames.gameId, frames.total, frames.scorecard, frames.imgPath, games.date 
+		FROM frames
+		JOIN games ON frames.gameId = games.id
+		ORDER BY games.date DESC;
+	`)
+	var frumes []FrameGame
+	for rows.Next() {
+		var f FrameGame
+		rows.Scan(&f.Id, &f.PlayerId, &f.GameId, &f.Total, &f.Scorecard, &f.ImgPath, &f.Date)
+		frumes = append(frumes, f)
+	}
+
+	c.JSON(200, frumes)
+}
+
 var LastModifiedFrames time.Time
 var LastFetchedFrames time.Time
 var framesCache []Frame
@@ -250,6 +272,7 @@ func main() {
 
 	r.GET("/stats", Stats)
 	r.POST("/game", AddGame)
+	r.GET("/allgames", GetAllFramesByGame)
 
 	r.Run(":8888")
 	fmt.Println(BestScore())
